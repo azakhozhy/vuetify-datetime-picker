@@ -6,7 +6,7 @@
          :disabled="disabled"
          :loading="loading"
          :label="label"
-         :value="formattedDatetime"
+         :value="oldDatetime"
          v-on="on"
          readonly
       >
@@ -73,10 +73,6 @@ export default {
     value: {
       type: [Date, String]
     },
-    datetime: {
-      type: [Date, String],
-      default: null
-    },
     disabled: {
       type: Boolean
     },
@@ -98,6 +94,10 @@ export default {
     timeFormat: {
       type: String,
       default: 'HH:mm'
+    },
+    autoInput: {
+      type: Boolean,
+      default: false
     },
     clearText: {
       type: String,
@@ -122,7 +122,8 @@ export default {
       display: false,
       activeTab: 0,
       date: DEFAULT_DATE,
-      time: DEFAULT_TIME
+      time: DEFAULT_TIME,
+      oldDatetime: null
     }
   },
   mounted () {
@@ -155,23 +156,26 @@ export default {
   },
   methods: {
     init () {
-      if (!this.datetime) {
+      if (!this.value) {
         return
       }
 
       let initDateTime
-      if (this.datetime instanceof Date) {
-        initDateTime = this.datetime
-      } else if (typeof this.datetime === 'string' || this.datetime instanceof String) {
+      if (this.value instanceof Date) {
+        initDateTime = this.value
+      } else if (typeof this.value === 'string' || this.value instanceof String) {
         // see https://stackoverflow.com/a/9436948
-        initDateTime = parse(this.datetime, this.dateTimeFormat, new Date())
+        initDateTime = parse(this.value, this.dateTimeFormat, new Date())
       }
+
+      this.oldDatetime = format(initDateTime, this.dateTimeFormat)
 
       this.date = format(initDateTime, DEFAULT_DATE_FORMAT)
       this.time = format(initDateTime, DEFAULT_TIME_FORMAT)
     },
     okHandler () {
       this.resetPicker()
+      this.oldDatetime = format(this.selectedDatetime, this.dateTimeFormat)
       this.$emit('input', this.selectedDatetime)
     },
     clearHandler () {
@@ -196,10 +200,16 @@ export default {
       this.init()
     },
     date: function (v) {
-      this.$emit('input', this.selectedDatetime)
+      if (this.autoInput) {
+        this.oldDatetime = format(this.selectedDatetime, this.dateTimeFormat)
+        this.$emit('input', this.selectedDatetime)
+      }
     },
     time: function (v) {
-      this.$emit('input', this.selectedDatetime)
+      if (this.autoInput) {
+        this.oldDatetime = format(this.selectedDatetime, this.dateTimeFormat)
+        this.$emit('input', this.selectedDatetime)
+      }
     }
   }
 }
