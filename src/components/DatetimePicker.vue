@@ -196,7 +196,7 @@ export default {
     }
   },
   watch: {
-    datetime: function () {
+    value: function (v) {
       this.init()
     },
     date: function (v) {
