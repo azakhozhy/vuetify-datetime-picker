@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="display" :width="dialogWidth">
+  <v-dialog v-model="display" :width="dialogWidth" persistent>
     <template v-slot:activator="{ on }">
       <v-text-field
         v-bind="textFieldProps"
@@ -124,6 +124,11 @@ export default {
       activeTab: 0,
       date: DEFAULT_DATE,
       time: DEFAULT_TIME
+    }
+  },
+  watch:{
+    date: function(v){
+      this.$emit('input', v)
     }
   },
   mounted() {
